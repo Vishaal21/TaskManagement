@@ -25,6 +25,12 @@ type UserLoginResponse struct {
 	Password string
 }
 
+type UserResponse struct {
+	Id       int    `json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+}
+
 func (u *UserRepo) GetUserByEmail(email string, db *gorm.DB) (*UserLoginResponse, error) {
 	var user models.User
 
@@ -68,4 +74,54 @@ func (u *UserRepo) CreateUser(user *AddUserBody, db *gorm.DB) error {
 		return result.Error
 	}
 	return nil
+}
+
+func (u *UserRepo) GetUserNameById(id int, db *gorm.DB) (string, error) {
+	var user models.User
+
+	result := db.Select("name").
+		Where("id = ?", id).
+		Table("users").
+		Scan(&user)
+
+	if result.RowsAffected == 0 {
+		error := fmt.Errorf("no user found with id %v", id)
+		log.Println(error)
+		return "", nil
+	}
+
+	// some other error occurred
+	if result.Error != nil {
+		error := fmt.Errorf("error while getting user details for %v: %v", id, result.Error)
+		log.Println(error)
+		return "", result.Error
+	}
+
+	return user.Name, nil
+}
+
+func (u *UserRepo) GetUsers(db *gorm.DB, userId int) ([]UserResponse, error) {
+	var users []models.User
+	result := db.Select("id", "name", "email").Where("id != ?", userId).Table("users").Scan(&users)
+
+	if result.RowsAffected == 0 {
+		error := fmt.Errorf("no users found")
+		log.Println(error)
+		return nil, error
+	}
+	if result.Error != nil {
+		log.Println(result.Error)
+		return nil, fmt.Errorf("something went wrong try again later")
+	}
+
+	var userResponses []UserResponse
+	for _, user := range users {
+		userResponses = append(userResponses, UserResponse{
+			Id:       int(user.ID),
+			Name:     user.Name,
+			Email:    user.Email,
+		})
+	}
+
+	return userResponses, nil
 }

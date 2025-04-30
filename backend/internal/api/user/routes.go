@@ -1,6 +1,8 @@
 package user
 
 import (
+	"task_management/internal/util"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +20,15 @@ func SetupRoutes(r *gin.Engine) {
 	})
 
 	// responsible for login
-	userGroup.GET("/login", func(ctx *gin.Context) {
+	userGroup.POST("/login", func(ctx *gin.Context) {
 		userController.Login(ctx)
+	})
+
+	// protected routes
+	protectedUserGroup := userGroup.Group("", util.AuthMiddleware())
+
+	// responsible for getting users
+	protectedUserGroup.GET("/get-users", func(ctx *gin.Context) {
+		userController.GetUsers(ctx)
 	})
 }

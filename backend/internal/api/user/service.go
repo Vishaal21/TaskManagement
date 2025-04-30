@@ -72,3 +72,10 @@ func (s *UserService) LoginUser(userData LoginUserBody, dbConn *gorm.DB) (string
 	return accessToken, nil
 
 }
+
+func (s *UserService) GetUsers(dbConn *gorm.DB, userId int) ([]UserResponse, error) {
+
+	// fetch the users
+	return s.userRepo.GetUsers(dbConn, userId)
+}
+	

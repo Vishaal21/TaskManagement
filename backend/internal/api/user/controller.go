@@ -79,3 +79,30 @@ func (c *UserController) Login(ctx *gin.Context) {
 	// set the token in the response
 	ctx.JSON(200, gin.H{"accessToken": token})
 }
+
+func (c *UserController) GetUsers(ctx *gin.Context) {
+
+	// get the db conn from the context
+	dbConn, err := util.GetDbConnectionFromContext(ctx)
+	if err != nil {
+		ctx.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	// get the userId from the context
+	userId, exists := ctx.Get("userId")
+	if !exists {
+		ctx.JSON(500, gin.H{"error": "userId not found in context"})
+		return
+	}
+
+	// fetch the users
+	users, err := c.userService.GetUsers(dbConn, userId.(int))
+	if err != nil {
+		ctx.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	// return the users
+	ctx.JSON(200, gin.H{"users": users})
+}
