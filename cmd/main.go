@@ -23,9 +23,9 @@ import (
 func Initialize() (*gorm.DB, error) {
 
 	// load environment variables
-	err := godotenv.Load()
-	if err != nil {
-		return nil, fmt.Errorf("error loading .env file")
+	if err := godotenv.Load(); err != nil {
+		
+		fmt.Println("No .env file found, using environment variables")
 	}
 
 	// initialize database
