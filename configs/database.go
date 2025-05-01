@@ -10,7 +10,7 @@ import (
 
 func ConnectToDB() (*gorm.DB, error) {
 	// Database connection
-	dsn := fmt.Sprintf("host=localhost user=postgres password=%v dbname=task_management port=5432", os.Getenv("DB_PASSWORD"))
+	dsn := fmt.Sprintf("%v", os.Getenv("DATABASE_URL"))
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %v", err)
